@@ -1,0 +1,15 @@
+server:
+  port: 8080
+
+spring:
+  ai:
+    mcp:
+      server:
+        name: weather-mcp-server
+        version: 1.0.0
+        type: SYNC
+        protocol: STREAMABLE
+        capabilities:
+          tool: true
+        streamable-http:
+          mcp-endpoint: /mcp

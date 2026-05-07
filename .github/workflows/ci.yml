@@ -1,0 +1,40 @@
+name : CI
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Cache maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/respository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build & run tests
+        run: ./mvnw verify
+
+      - name: SonarCloud analysis
+        env:
+          SONAR_TOKEN : ${{ secrets.SONAR_TOKEN }}
+        run : ./mvnw sonar:sonar
+          -Dsonar.projectKey=mohamedraguig_MCP-Weather-Tool
+          -Dsonar.organization=mohamedraguig
+          -Dsonar.host.url=https://sonarcloud.io

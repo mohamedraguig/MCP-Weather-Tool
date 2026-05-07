@@ -4,4 +4,5 @@ import java.util.List;
 
 public record DailyWeather(List<String> temperature_2m_max,
                            List<String> temperature_2m_mean,
-                           List<String> temperature_2m_min) {}
+                           List<String> temperature_2m_min,
+                           List<String> weather_code) {}

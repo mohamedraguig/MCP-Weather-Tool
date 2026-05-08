@@ -38,3 +38,4 @@ jobs:
           -Dsonar.projectKey=mohamedraguig_MCP-Weather-Tool
           -Dsonar.organization=mohamedraguig
           -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml

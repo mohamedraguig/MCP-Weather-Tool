@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.ai.tool</groupId>
     <artifactId>MCP</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.3-SNAPSHOT</version>
     <name>MCP</name>
     <description>MCP</description>
     <url/>

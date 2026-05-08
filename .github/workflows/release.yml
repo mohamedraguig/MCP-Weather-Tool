@@ -54,7 +54,7 @@ jobs:
       - name: Create PR for version bump
         uses: peter-evans/create-pull-request@v6
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.CI/CD }}
           commit-message: "chore: bump version to next SNAPSHOT"
           branch: chore/version-bump
           title: "chore: bump version to next SNAPSHOT"

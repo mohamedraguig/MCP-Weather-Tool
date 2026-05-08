@@ -28,38 +28,39 @@ public class WeatherTool {
     private final GeocodingService geocodingService;
     private final WeatherService weatherService;
 
-    private volatile WeatherData lastWeatherData;
-
     @McpTool(
             name = "get_weather",
             description = "Retourne la météo actuelle pour une ville donnée",
             metaProvider = UiMetaProvider.class
     )
     public CallToolResult getWeather(WeatherRequest request) {
-        // 1 retrieve city latitude and longitude
-        GeocodingEntry geocodingEntry = this.geocodingService.getCityGeoCoding(request.city());
+        try {
+            // 1 retrieve city latitude and longitude
+            GeocodingEntry geocodingEntry = this.geocodingService.getCityGeoCoding(request.city());
 
-        // 2 retrieve daily weather (temperature) for location
-        WeatherResponse weatherResponse = this.weatherService.getWeatherForLocation(geocodingEntry.latitude(), geocodingEntry.longitude());
+            // 2 retrieve daily weather (temperature) for location
+            WeatherResponse weatherResponse = this.weatherService.getWeatherForLocation(geocodingEntry.latitude(), geocodingEntry.longitude());
 
-        this.lastWeatherData = new WeatherData(
-                request.city(),
-                geocodingEntry.latitude(),
-                geocodingEntry.longitude(),
-                weatherResponse
-        );
+            return CallToolResult.builder()
+                    .structuredContent(Map.of(
+                            "city",  request.city(),
+                            "date",  LocalDate.now().toString(),
+                            "lat",   geocodingEntry.latitude(),
+                            "lon",   geocodingEntry.longitude(),
+                            "daily", weatherResponse.daily()
+                    ))
+                    .addTextContent("Je vous ai trouvé la météo")
+                    .isError(false)
+                    .build();
+        } catch (IllegalArgumentException e) {
 
-        return CallToolResult.builder()
-                .structuredContent(Map.of(
-                        "city",  request.city(),
-                        "date",  LocalDate.now().toString(),
-                        "lat",   geocodingEntry.latitude(),
-                        "lon",   geocodingEntry.longitude(),
-                        "daily", weatherResponse.daily()
-                ))
-                .addTextContent("Je vous ai trouvé la météo")
-                .isError(false)
-                .build();
+            log.error("Une erreur est survenue lors de la récupération de la météo : {}", e.getMessage());
+
+            return CallToolResult.builder()
+                    .isError(true)
+                    .addTextContent("Une erreur est survenue")
+                    .build();
+        }
     }
 
     @McpResource(
@@ -72,13 +73,6 @@ public class WeatherTool {
     public String getWeatherCardUI() throws IOException {
         return new ClassPathResource("static/weather-widget.html").getContentAsString(StandardCharsets.UTF_8);
     }
-
-    public record WeatherData(
-            String city,
-            double lat,
-            double lon,
-            WeatherResponse weatherResponse
-    ) {}
 
     public static final class UiMetaProvider implements MetaProvider {
 

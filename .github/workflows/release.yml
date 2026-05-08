@@ -51,10 +51,11 @@ jobs:
           -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion}-SNAPSHOT
           -DgenerateBackupPoms=false
 
-      - name: Commit new version
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add pom.xml
-          git commit -m "chore: bump version to next SNAPSHOT"
-          git push
+      - name: Create PR for version bump
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: bump version to next SNAPSHOT"
+          branch: chore/version-bump
+          title: "chore: bump version to next SNAPSHOT"
+          body: "Version bump automatic après release"

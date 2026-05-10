@@ -1,9 +1,8 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'
+  release:
+    types: [created]
 
 jobs:
   release:
@@ -15,7 +14,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.PAT_TOKEN }}
           fetch-depth: 0
 
       - name: Set up JDK 21
@@ -35,29 +33,9 @@ jobs:
       - name: Build jar
         run: ./mvnw package -DskipTests
 
-      - name: Get version from pom.xml
-        id: get_version
-        run: echo "VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
-
-      - name: Create Github Release
+      - name: Upload jar to release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.get_version.outputs.VERSION }}
-          name: Release v${{ steps.get_version.outputs.VERSION }}
           files: target/*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Bump patch version
-        run: ./mvnw build-helper:parse-version versions:set
-          -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion}-SNAPSHOT
-          -DgenerateBackupPoms=false
-
-      - name: Create PR for version bump
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.PAT_TOKEN }}
-          commit-message: "chore: bump version to next SNAPSHOT"
-          branch: chore/version-bump
-          title: "chore: bump version to next SNAPSHOT"
-          body: "Version bump automatic après release"

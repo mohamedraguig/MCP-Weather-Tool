@@ -16,6 +16,7 @@ jobs:
         with:
           token: ${{ secrets.PAT_TOKEN }}
           fetch-depth: 0
+          ref: master
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -50,8 +51,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git fetch origin master
-          git rebase origin/master
           git add pom.xml
           git commit -m "chore: bump version to next SNAPSHOT"
           git push origin HEAD:master
